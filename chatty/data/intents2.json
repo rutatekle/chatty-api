@@ -1,0 +1,47 @@
+{"intents": [
+        {"tag": "greeting",
+         "patterns": ["Hi", "How are you", "Is anyone there", "Hello", "Good day", "What's up","Hey","Greetings!", "How is it going","How are you doing","How do you do","nice to meet you","It is a pleasure to meet you"],
+         "responses": ["Hello, thanks for visiting", "Good to see you", "Hi there","Hi, welcome!"],
+         "context_set": ""
+        },
+        {"tag": "goodbye",
+         "patterns": ["okay see you later", "hope to see you later", "bye for now",
+         "till next time", "bye", "goodbye", "see you","goodbye see you later"	, "alright bye"	, "thanks bye bye", "okay bye",
+         "see you soon", "bye-bye", "good bye", "bye bye see you", "bye bye take care", "goodbye for now", "talk to you later",
+         "ok bye", "nice talking to you", "it is nice talking to you","it's been so nice to talk to you", "it's been a pleasure talking to you"],
+         "responses": ["See you later, thanks for visiting", "Have a nice day", "Bye! Come back again soon.","ok bye", "nice talking to you", "it is nice talking to you","it's been so nice to talk to you", "it's been a pleasure talking to you"]
+
+        },
+        {"tag": "thanks",
+         "patterns": ["appreciate your help", "cheers", "thank you", "thanks", "thanks a lot", "terrific thank you", "great thank you",
+         "thanks so much", "thank you so much", "thanks for your help", "thank you for your help", "nice thank you", "I appreciate it",
+          "I thank you", "thank you that will be all", "thanks buddy", "well thanks", "very good thank you", "good thanks",
+          "thanks again", "thank you again", "all thank you", "alright thank you", "alright thanks", "no thank you that's all",
+           "perfect thank you", "so nice of you", "well thank you", "thnx", "thanx"],
+         "responses": ["Happy to help!", "Any time!", "My pleasure","welcome", "you're welcome", "sure welcome", "welcome here", "you're so welcome", "anything for you" ]
+        },
+        {"tag": "hours",
+         "patterns": ["What hours are you open", "What are your hours", "When are you open" ],
+         "responses": ["We're open every day 9am-9pm", "Our hours are 9am-9pm every day"]
+        },
+        {"tag": "payments",
+         "patterns": ["Do you take credit cards", "Do you accept Mastercard", "Are you cash only" ],
+         "responses": ["We accept VISA, Mastercard and AMEX", "We accept most major credit cards"]
+        },
+        {"tag": "menu",
+         "patterns": ["Can I see the menu please", "Menu" ],
+         "responses": ["Of course, Here is our menu"]
+        },
+        {"tag": "order",
+         "patterns": ["I want to order some food", "Order" ],
+         "responses": ["Great, Let me pull up our menu, What can I get you", "Okay, Here is our Menu, What would you like to order"]
+        },
+
+        {"tag": "book",
+         "patterns": ["I want to book a table", "book" ],
+         "responses": ["Awesome!"]
+        }
+
+
+   ]
+}

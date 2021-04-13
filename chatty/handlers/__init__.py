@@ -1,0 +1,1 @@
+import chatty.handlers.chat
