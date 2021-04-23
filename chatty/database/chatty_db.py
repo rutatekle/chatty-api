@@ -5,26 +5,30 @@ import pandas as pd
 
 class ChattyDatabase:
 
-    def create_connection(self,db_file):
+    def __init__(self, conn):
+        self.conn = conn
+
+    @classmethod
+    def create_connection(cls, db_file):
         conn = None
         try:
             conn = sqlite3.connect(db_file)
-            return conn
         except Error as e:
             print(e)
+        return conn
 
-    def close_connection(self,conn):
-        if conn:
-            conn.close()
+    def close_connection(self):
+        if self.conn:
+            self.conn.close()
 
-    def create_table(self,conn, create_table_sql):
+    def create_table(self, create_table_sql):
         try:
-            c = conn.cursor()
+            c = self.conn.cursor()
             c.execute(create_table_sql)
         except Error as e:
             print(e)
 
-    def table_creation_query(self, conn):
+    def create_initial_tables(self):
         sql_create_customers_table = """ CREATE TABLE IF NOT EXISTS customers (
                                                 id integer PRIMARY KEY,
                                                 name text NOT NULL,
@@ -71,127 +75,128 @@ class ChattyDatabase:
                                                    FOREIGN KEY (table_id) REFERENCES Tables (id)
                                                );"""
 
-        self.create_table(conn, sql_create_customers_table)
-        self.create_table(conn, sql_create_orders_table)
-        self.create_table(conn, sql_create_menu_table)
-        self.create_table(conn, sql_create_order_type_table)
-        self.create_table(conn, sql_create_dining_table)
-        self.create_table(conn, sql_create_reservation_table)
+        self.create_table(sql_create_customers_table)
+        self.create_table(sql_create_orders_table)
+        self.create_table(sql_create_menu_table)
+        self.create_table(sql_create_order_type_table)
+        self.create_table(sql_create_dining_table)
+        self.create_table(sql_create_reservation_table)
 
-    def create_populate_tables(self):
-        database = r"restaurant.db"
-        conn = self.create_connection(database)
-        self.table_creation_query(conn)
-
-        with conn:
+    def populate_seed_data(self):
+        with self.conn:
             customer = ('abc', 'abc@gmail.com')
-            customer_id = self.customer_entry(conn, customer)
+            customer_id = self.customer_entry(customer)
 
             order = (10, '04-15-2021', customer_id)
-            order_id = self.order_entry(conn, order)
+            order_id = self.order_entry(order)
 
-            menu = ('pizza', '5.00', 'pizza', 'pizza.jpg')
-            menu_id = self.menu_entry(conn, menu)
+            menu = ('Pizza', '11.90', 'pizza', 'pizza.jpg')
+            menu_id = self.menu_entry(menu)
+
+            #: Add more menu items
+            self.menu_entry(('Pasta', '9.99', 'pasta', 'pasta.jpg'))
+            self.menu_entry(('Lasagna', '7.99', 'lazagna', 'lazagna.jpg'))
+            self.menu_entry(('Rivoli', '8.99', 'rivoli', 'rivoli.jpg'))
+            self.menu_entry(('Calzone', '9.99', 'calzone', 'calzon.jpg'))
+            self.menu_entry(('Risotto', '9.99', 'risotto', 'risotto.jpg'))
+
 
             order_type = (menu_id, order_id, 2)
-            self.order_type_entry(conn, order_type)
+            self.order_type_entry(order_type)
 
             table = (6, 1)
-            table_id = self.dining_table_entry(conn, table)
+            table_id = self.dining_table_entry(table)
 
             reservation = (customer_id, table_id, '04-15-2021')
-            self.reservation_entry(conn, reservation)
+            self.reservation_entry(reservation)
 
-    def customer_entry(self, conn, customer):
+    def customer_entry(self, customer):
         sql = ''' INSERT INTO customers (name,email)
                       VALUES(?,?) '''
-        cur = conn.cursor()
+        cur = self.conn.cursor()
         cur.execute(sql, customer)
-        conn.commit()
+        self.conn.commit()
         return cur.lastrowid
 
-    def order_entry(self, conn, order):
+    def order_entry(self, order):
         sql = ''' INSERT INTO orders (price, date ,customer_id)
                       VALUES(?,?,?) '''
-        cur = conn.cursor()
+        cur = self.conn.cursor()
         cur.execute(sql, order)
-        conn.commit()
+        self.conn.commit()
         return cur.lastrowid
 
-    def menu_entry(self, conn, order):
+    def menu_entry(self, order):
         sql = ''' INSERT INTO menu (name, price ,category, picture)
                       VALUES(?,?,?,?) '''
-        cur = conn.cursor()
+        cur = self.conn.cursor()
         cur.execute(sql, order)
-        conn.commit()
+        self.conn.commit()
         return cur.lastrowid
 
-    def order_type_entry(self, conn, order_type):
+    def order_type_entry(self, order_type):
         sql = ''' INSERT INTO order_type (meal_id, order_id, quantity)
                       VALUES(?,?,?) '''
-        cur = conn.cursor()
+        cur = self.conn.cursor()
         cur.execute(sql, order_type)
-        conn.commit()
+        self.conn.commit()
         return cur.lastrowid
 
-    def dining_table_entry(self, conn, dining_table):
+    def dining_table_entry(self, dining_table):
         sql = ''' INSERT INTO tables (chair_count, status)
                       VALUES(?,?) '''
-        cur = conn.cursor()
+        cur = self.conn.cursor()
         cur.execute(sql, dining_table)
-        conn.commit()
+        self.conn.commit()
         return cur.lastrowid
 
-    def reservation_entry(self, conn, reservation):
+    def reservation_entry(self, reservation):
         sql = ''' INSERT INTO reservation (customer_id, table_id ,date)
                       VALUES(?,?,?) '''
-        cur = conn.cursor()
+        cur = self.conn.cursor()
         cur.execute(sql, reservation)
-        conn.commit()
+        self.conn.commit()
         return cur.lastrowid
 
-    def retrieve_all_menu(self,conn):
-        database = r"restaurant.db"
-        conn = self.create_connection(database)
-        query = "select * from menu"
-        df = pd.read_sql_query(query, conn)
-        # cur = conn.cursor()
-        # cur.execute(query)
-        # row = cur.fetchone()
-        # return row
-        return df
+    def retrieve_all_menu(self):
+        query = "select name, price, picture from menu"
+        cur = self.conn.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
 
-    def retrieve_single_menu(self,conn, menu_name):
-        database = r"restaurant.db"
-        conn = self.create_connection(database)
+        results = []
+        for row in rows:
+            results.append({'name': row[0], 'price': row[1], 'picture': row[2]})
+        return results
+
+    def retrieve_single_menu(self, menu_name):
         query = "select id from menu where name " + menu_name
-        df = pd.read_sql_query(query,conn)
+        df = pd.read_sql_query(query,self.conn)
         # cur = conn.cursor()
         # cur.execute(query)
         # row = cur.fetchone()
         # return row
         return df
 
-    def retrieve_available_tables(self,conn, chair_count):
+    def retrieve_available_tables(self, chair_count):
         database = r"restaurant.db"
-        conn = self.create_connection(database)
         query = "select id from tables chair_count = " + chair_count + " and status = 1"
-        df = pd.read_sql_query(query, conn)
+        df = pd.read_sql_query(query, self.conn)
         # cur = conn.cursor()
         # cur.execute(query)
         # row = cur.fetchone()
         # return row
         return df
 
-    def save_order_db(self, conn, customer_name, customer_email, food, quantity, total, date, time):
-        customer_id = self.customer_entry(conn, (customer_name, customer_email))
-        order_id = self.order_entry(conn, (total, str(date) + " at " + str(time), customer_id))
-        meal = self.retrieve_single_menu(conn, food)
+    def save_order_db(self, customer_name, customer_email, food, quantity, total, date, time):
+        customer_id = self.customer_entry((customer_name, customer_email))
+        order_id = self.order_entry((total, str(date) + " at " + str(time), customer_id))
+        meal = self.retrieve_single_menu(food)
         meal_id = meal["id"].values
-        self.order_type_entry(conn, (meal_id, order_id, quantity))
+        self.order_type_entry((meal_id, order_id, quantity))
 
-    def save_booking_db(self, conn, customer_name, customer_email, chair_count, date, time):
-        customer_id = self.customer_entry(conn, (customer_name, customer_email))
-        table = self.retrieve_available_tables(conn, chair_count)
+    def save_booking_db(self, customer_name, customer_email, chair_count, date, time):
+        customer_id = self.customer_entry((customer_name, customer_email))
+        table = self.retrieve_available_tables(chair_count)
         table_id = table["id"].vlaue()
-        self.reservation_entry(conn, (customer_id, table_id, date + " at " + time))
+        self.reservation_entry((customer_id, table_id, date + " at " + time))
