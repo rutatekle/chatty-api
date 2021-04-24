@@ -4,6 +4,7 @@ import spacy
 import json
 import os
 from typing import List, Tuple, Dict
+from aiohttp_session import get_session
 
 from chatty.database.chatty_db import ChattyDatabase
 
@@ -41,11 +42,14 @@ class ChattySpacyService:
         data = nlp(data)
         return nlp(' '.join([str(t) for t in data if not t.is_stop]))
 
-    def chatbot(self, nlp, docs_x, docs_y, intent_data, statement: str) -> Tuple:
+    async def chatbot(self, request, nlp, docs_x, docs_y, intent_data, statement: str) -> Tuple:
         original_statement = statement
         statement = self.pre_process(nlp, statement)
         min_similarity = 0.95
         user_intent = []
+
+        #session = await get_session(request)
+        #session['session_data']['third_key'] = 'third_val'
 
         for word in statement:
 

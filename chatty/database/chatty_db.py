@@ -35,6 +35,11 @@ class ChattyDatabase:
                                                 email text NOT NULL
                                             ); """
 
+        sql_user_session_table = """ CREATE TABLE IF NOT EXISTS user_session (                                                        
+                                                        session_id varchar(64) NOT NULL PRIMARY KEY,
+                                                        session_data text
+                                                    ); """
+
         sql_create_orders_table = """ CREATE TABLE IF NOT EXISTS orders (
                                             id integer PRIMARY KEY,
                                             price float,
@@ -81,6 +86,7 @@ class ChattyDatabase:
         self.create_table(sql_create_order_type_table)
         self.create_table(sql_create_dining_table)
         self.create_table(sql_create_reservation_table)
+        self.create_table(sql_user_session_table)
 
     def populate_seed_data(self):
         with self.conn:
@@ -117,6 +123,21 @@ class ChattyDatabase:
         cur.execute(sql, customer)
         self.conn.commit()
         return cur.lastrowid
+
+    def upsert_user_session(self, session_id, session_data):
+        sql = ''' REPLACE INTO  user_session (session_id,session_data)
+                      VALUES(?,?) '''
+        cur = self.conn.cursor()
+        cur.execute(sql, (session_id, session_data))
+        self.conn.commit()
+        return cur.lastrowid
+
+    def get_user_session(self, session_id):
+        query = "select session_data from user_session where session_id = '" + session_id + "'"
+        cur = self.conn.cursor()
+        cur.execute(query)
+        row = cur.fetchall()
+        return row[0][0]if row else {}
 
     def order_entry(self, order):
         sql = ''' INSERT INTO orders (price, date ,customer_id)
