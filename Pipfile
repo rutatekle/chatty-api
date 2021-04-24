@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 aiohttp = "*"
 aiohttp-middlewares = "*"
+aiohttp-session = {extras = ["secure"], version = "*"}
 
 [dev-packages]
 

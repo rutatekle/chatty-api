@@ -2,7 +2,7 @@ import spacy
 from spacy.training.example import Example
 
 
-class TrainSpacyPipeLine:
+class TrainSpacyPipeLineService:
 
     @staticmethod
     def load_and_train(self):
